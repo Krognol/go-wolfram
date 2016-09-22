@@ -204,7 +204,7 @@ func GetXML(url string, target interface{}) error {
 	get, err := client.Do(req)
 
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	defer get.Body.Close()
