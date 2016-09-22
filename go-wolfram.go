@@ -206,8 +206,7 @@ func GetXML(url string, target interface{}) error {
 	if err != nil {
 		panic(err)
 	}
-
+	
 	defer get.Body.Close()
-
 	return xml.NewDecoder(get.Body).Decode(target)
 }
