@@ -52,7 +52,7 @@ func main() {
 	//Initialize a new client
 	c := &wolfram.Client{AppID:"your app id here"}
   
-  params := &wolfram.AdditionalUrl{Add: []string{"DateOrder_**Day.Month.Year--"}}
+  	params := &wolfram.AdditionalUrl{Add: []string{"DateOrder_**Day.Month.Year--"}}
   
 	//Get a result without additional parameters
 	res := c.GetQueryResult("26-9-2016", params)
