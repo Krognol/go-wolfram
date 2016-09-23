@@ -120,7 +120,7 @@ type ReInterpretation struct {
 }
 
 type Alternative struct {
-	Text string `xml:",innerxml"`
+	InnerText string `xml:",innerxml"`
 }
 
 type Assumptions struct {
@@ -252,7 +252,9 @@ type AdditionalParameters struct {
 
 //Gets the query result from the API and returns it
 func (c *Client) GetQueryResult(query string, extra *AdditionalParameters) *QueryResult {
+
 	query = strings.Replace(query, " ", "%20", -1)
+
 	url := "https://api.wolframalpha.com/v2/query?input=" + query + "&appid=" + c.AppID
 
 	if extra != nil {
