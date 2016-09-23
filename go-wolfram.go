@@ -246,18 +246,18 @@ type Img struct {
 
 //Example: Add[0] = "format=image"
 //Additional parameters can be found at http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
-type AdditionalUrl struct {
-	Add []string
+type AdditionalParameters struct {
+	Parameters []string
 }
 
 //Gets the query result from the API and returns it
-func (c *Client) GetQueryResult(query string, extra *AdditionalUrl) *QueryResult {
+func (c *Client) GetQueryResult(query string, extra *AdditionalParameters) *QueryResult {
 	query = strings.Replace(query, " ", "%20", -1)
 	url := "https://api.wolframalpha.com/v2/query?input=" + query + "&appid=" + c.AppID
 
 	if extra != nil {
-		for i := range extra.Add {
-			url += ("&" + extra.Add[i])
+		for i := range extra.Parameters {
+			url += ("&" + extra.Parameters[i])
 		}
 	}
 
