@@ -54,7 +54,7 @@ func main() {
   
   	params := &wolfram.AdditionalParameters{Parameters: []string{"DateOrder_**Day.Month.Year--"}}
   
-	//Get a result without additional parameters
+	//Get a result with additional parameters
 	res := c.GetQueryResult("26-9-2016", params)
 
 	//Iterate through the pods and subpods
