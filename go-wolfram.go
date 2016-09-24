@@ -3,6 +3,7 @@ package wolfram
 import (
 	"encoding/xml"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -245,21 +246,15 @@ type Img struct {
 
 //Example: Add[0] = "format=image"
 //Additional parameters can be found at http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
-type AdditionalParameters struct {
-	Parameters []string
-}
-
 //Gets the query result from the API and returns it
-func (c *Client) GetQueryResult(query string, extra *AdditionalParameters) *QueryResult {
+func (c *Client) GetQueryResult(query string, params url.Values) *QueryResult {
 
 	query = strings.Replace(query, " ", "%20", -1)
 
 	url := "https://api.wolframalpha.com/v2/query?input=" + query + "&appid=" + c.AppID
 
-	if extra != nil {
-		for i := range extra.Parameters {
-			url += ("&" + extra.Parameters[i])
-		}
+	if params != nil {
+		url += "&" + params.Encode()
 	}
 
 	data := &QueryResult{}
@@ -275,11 +270,7 @@ func (c *Client) GetQueryResult(query string, extra *AdditionalParameters) *Quer
 //Gets the XML from the API and assigns the data to the target
 //The target being a QueryResult struct
 func GetXML(url string, target interface{}) error {
-	client := &http.Client{}
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	get, err := client.Do(req)
+	get, err := http.Get(url)
 
 	if err != nil {
 		panic(err)
