@@ -244,8 +244,12 @@ type Img struct {
 	Height int    `xml:"height,attr"`
 }
 
-//Example: Add[0] = "format=image"
-//Additional parameters can be found at http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
+//Example extra parameter: "format=image", for a url.Value it'd be:
+//u := url.Values{}
+//u.Add("format", "image")
+//Additional information about  parameters can be found at
+//http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
+
 //Gets the query result from the API and returns it
 func (c *Client) GetQueryResult(query string, params url.Values) *QueryResult {
 
