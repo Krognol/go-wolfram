@@ -15,7 +15,11 @@ func main() {
 	c := &wolfram.Client{AppID:"your app id here"}
 
 	//Get a result without additional parameters
-	res := c.GetQueryResult("1+1", nil)
+	res, err := c.GetQueryResult("1+1", url.Values{})
+
+	if err != nil {
+		panic(err)
+	}
 
 	//Iterate through the pods and subpods
 	//and print out their title attributes
@@ -56,7 +60,11 @@ func main() {
 	params.Set("assumption", "DateOrder_**Day.Month.Year--")
   
 	//Get a result with additional parameters
-	res := c.GetQueryResult("26-9-2016", params)
+	res, err := c.GetQueryResult("26-9-2016", params)
+
+	if err != nil {
+		panic(err)
+	}
 
 	//Iterate through the pods and subpods
 	//and print out their title attributes
