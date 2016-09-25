@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 //The client, requires an App ID, which you can sign up for at https://developer.wolframalpha.com/
@@ -247,37 +246,31 @@ type Img struct {
 //Example extra parameter: "format=image", for a url.Value it'd be:
 //u := url.Values{}
 //u.Add("format", "image")
-//Additional information about  parameters can be found at
+//Additional information about parameters can be found at
 //http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
 
 //Gets the query result from the API and returns it
-func (c *Client) GetQueryResult(query string, params url.Values) *QueryResult {
+func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, error) {
+	//If params is nil an error will be thrown
+	params.Set("input", url.QueryEscape(query))
+	params.Set("appid", c.AppID)
 
-	query = strings.Replace(query, " ", "%20", -1)
-
-	url := "https://api.wolframalpha.com/v2/query?input=" + query + "&appid=" + c.AppID
-
-	if params != nil {
-		url += "&" + params.Encode()
-	}
+	url := "https://api.wolframalpha.com/v2/query?" + params.Encode()
 
 	data := &QueryResult{}
 
 	err := GetXML(url, data)
 
-	if err != nil {
-		panic(err)
-	}
-	return data
+	return data, err
 }
 
-//Gets the XML from the API and assigns the data to the target
+//Gets the XML from the API and assigns the data to the target.
 //The target being a QueryResult struct
 func GetXML(url string, target interface{}) error {
 	get, err := http.Get(url)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer get.Body.Close()
