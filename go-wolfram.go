@@ -249,9 +249,12 @@ type Img struct {
 //Additional information about parameters can be found at
 //http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
 
-//Gets the query result from the API and returns it
+//Gets the query result from the API and returns it.
 func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, error) {
-	//If params is nil an error will be thrown
+	if params == nil {
+		params = url.Values{}
+	}
+
 	params.Set("input", url.QueryEscape(query))
 	params.Set("appid", c.AppID)
 

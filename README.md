@@ -15,7 +15,7 @@ func main() {
 	c := &wolfram.Client{AppID:"your app id here"}
 
 	//Get a result without additional parameters
-	res, err := c.GetQueryResult("1+1", url.Values{})
+	res, err := c.GetQueryResult("1+1", nil)
 
 	if err != nil {
 		panic(err)
