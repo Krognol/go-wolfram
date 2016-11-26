@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strings"
 )
 
 //The client, requires an App ID, which you can sign up for at https://developer.wolframalpha.com/
@@ -13,6 +15,10 @@ type Client struct {
 
 //The QueryResult is what you get back after a request
 type QueryResult struct {
+
+	// The url for the query
+	URL string
+
 	//The pods are what hold the majority of the information
 	Pods []Pod `xml:"pod"`
 
@@ -254,14 +260,20 @@ func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, 
 	if params == nil {
 		params = url.Values{}
 	}
+	letters := regexp.MustCompile("[a-zA-Z]+")
 
-	params.Set("input", url.QueryEscape(query))
+	if letters.MatchString(query) {
+		query = strings.Replace(query, " ", "%20", -1)
+	} else {
+		query = strings.Replace(query, " ", "", -1)
+	}
+
+	params.Set("input", query)
 	params.Set("appid", c.AppID)
-
 	url := "https://api.wolframalpha.com/v2/query?" + params.Encode()
 
 	data := &QueryResult{}
-
+	data.URL = url
 	err := GetXML(url, data)
 
 	return data, err
