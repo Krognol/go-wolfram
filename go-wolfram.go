@@ -15,7 +15,7 @@ type Client struct {
 
 //The QueryResult is what you get back after a request
 type QueryResult struct {
-
+	Query string
 	// The url for the query
 	URL string
 
@@ -273,15 +273,16 @@ func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, 
 	url := "https://api.wolframalpha.com/v2/query?" + params.Encode()
 
 	data := &QueryResult{}
+	data.Query = query
 	data.URL = url
-	err := GetXML(url, data)
+	err := getXML(url, data)
 
 	return data, err
 }
 
 //Gets the XML from the API and assigns the data to the target.
 //The target being a QueryResult struct
-func GetXML(url string, target interface{}) error {
+func getXML(url string, target interface{}) error {
 	get, err := http.Get(url)
 
 	if err != nil {
