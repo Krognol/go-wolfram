@@ -305,6 +305,9 @@ func (c *Client) GetSimpleQuery(query string, params url.Values) (io.ReadCloser,
 	}
 
 	query = fmt.Sprintf("http://api.wolframalpha.com/v1/simple?appid=%s&input=%s&output=json", c.AppID, query)
+	if params != nil {
+		query += "&" + params.Encode()
+	}
 
 	res, err := http.Get(query)
 
