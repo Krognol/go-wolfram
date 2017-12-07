@@ -7,9 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
-	"strings"
 )
 
 //The client, requires an App ID, which you can sign up for at https://developer.wolframalpha.com/
@@ -251,8 +249,6 @@ type Img struct {
 	Height int    `json:"height"`
 }
 
-var reg = regexp.MustCompile("[a-zA-Z]+")
-
 // GetQueryResult gets the query result from the API and returns it.
 // Example extra parameter: "format=image", for a url.Value it'd be:
 // u := url.Values{}
@@ -260,11 +256,7 @@ var reg = regexp.MustCompile("[a-zA-Z]+")
 // Additional information about parameters can be found at
 // http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
 func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, error) {
-	if reg.MatchString(query) {
-		query = strings.Replace(query, " ", "+", -1)
-	} else {
-		query = strings.Replace(query, " ", "", -1)
-	}
+	query = url.QueryEscape(query)
 
 	url := fmt.Sprintf("https://api.wolframalpha.com/v2/query?input=%s&appid=%s&output=JSON", query, c.AppID)
 	if params != nil {
@@ -298,11 +290,7 @@ func unmarshal(body *http.Response, target interface{}) error {
 //
 // The rest of the parameters can be found here https://products.wolframalpha.com/simple-api/documentation/
 func (c *Client) GetSimpleQuery(query string, params url.Values) (io.ReadCloser, string, error) {
-	if reg.MatchString(query) {
-		query = strings.Replace(query, " ", "+", -1)
-	} else {
-		query = strings.Replace(query, " ", "", -1)
-	}
+	query = url.QueryEscape(query)
 
 	query = fmt.Sprintf("http://api.wolframalpha.com/v1/simple?appid=%s&input=%s&output=json", c.AppID, query)
 	if params != nil {
@@ -326,11 +314,7 @@ const (
 )
 
 func (c *Client) GetShortAnswerQuery(query string, units Unit, timeout int) (string, error) {
-	if reg.MatchString(query) {
-		query = strings.Replace(query, " ", "+", -1)
-	} else {
-		query = strings.Replace(query, " ", "", -1)
-	}
+	query = url.QueryEscape(query)
 
 	switch units {
 	case Imperial:
@@ -357,11 +341,7 @@ func (c *Client) GetShortAnswerQuery(query string, units Unit, timeout int) (str
 }
 
 func (c *Client) GetSpokentAnswerQuery(query string, units Unit, timeout int) (string, error) {
-	if reg.MatchString(query) {
-		query = strings.Replace(query, " ", "+", -1)
-	} else {
-		query = strings.Replace(query, " ", "", -1)
-	}
+	query = url.QueryEscape(query)
 
 	switch units {
 	case Imperial:
@@ -411,11 +391,7 @@ type FastQueryResult struct {
 }
 
 func (c *Client) GetFastQueryRecognizer(query string, mode Mode) (*FastQueryResult, error) {
-	if reg.MatchString(query) {
-		query = strings.Replace(query, " ", "+", -1)
-	} else {
-		query = strings.Replace(query, " ", "", -1)
-	}
+	query = url.QueryEscape(query)
 
 	switch mode {
 	case Default:
