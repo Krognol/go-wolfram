@@ -166,6 +166,9 @@ type Pod struct {
 	//data it holds.
 	Scanner string `json:"scanner"`
 
+	//Marks the pod that displays the closest thing to a simple "answer" that Wolfram|Alpha can provide
+	Primary    bool   `json:"primary,omitempty"`
+
 	//Not documented currently
 	ID         string `json:"id"`
 	Position   int    `json:"position"`
