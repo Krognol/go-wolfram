@@ -21,23 +21,6 @@ type Json struct {
 
 // The QueryResult is what you get back after a request
 type QueryResult struct {
-	Query string
-
-	//The pods are what hold the majority of the information
-	Pods []Pod `json:"pods"`
-
-	//Warnings hold information about for example spelling errors
-	Warnings Warnings `json:"warnings"`
-
-	//Assumptions show info if some assumption was made while parsing the query
-	Assumptions Assumptions `json:"assumptions"`
-
-	//Each Source contains a link to a web page with the source information
-	Sources Sources `json:"sources"`
-
-	//Generalizes the query to display more information
-	Generalizations []Generalization `json:"generalization"`
-
 	//true or false depending on whether the input could be successfully
 	//understood. If false there will be no <pod> subelements
 	Success bool `json:"success"`
@@ -56,6 +39,8 @@ type QueryResult struct {
 	//The number of pods that are missing because they timed out (see the
 	//scantimeout query parameter).
 	TimedOut string `json:"timedout"`
+
+	TimedOutPods string `json:"timedoutpods"`
 
 	//The wall-clock time in seconds required to generate the output.
 	Timing float64 `json:"timing"`
@@ -78,6 +63,14 @@ type QueryResult struct {
 
 	//The version specification of the API on the server that produced this result.
 	Version string `json:"version"`
+
+	InputString string `json:"inputstring"`
+
+	//The pods are what hold the majority of the information
+	Pods []Pod `json:"pods"`
+
+	//Each Source contains a link to a web page with the source information
+	Sources Source `json:"sources"`
 }
 
 type Generalization struct {
@@ -156,13 +149,6 @@ type Value struct {
 
 // <pod> elements are subelements of <queryresult>. Each contains the results for a single pod
 type Pod struct {
-	//The subpod elements of the pod
-	SubPods []SubPod `json:"subpod"`
-
-	//sub elements of the pod
-	Infos  Infos   `json:"infos"`
-	States []State `json:"states"`
-
 	//The pod title, used to identify the pod.
 	Title string `json:"title"`
 
@@ -170,15 +156,20 @@ type Pod struct {
 	//data it holds.
 	Scanner string `json:"scanner"`
 
-	//Marks the pod that displays the closest thing to a simple "answer" that Wolfram|Alpha can provide
-	Primary bool `json:"primary,omitempty"`
-
 	//Not documented currently
 	ID         string `json:"id"`
 	Position   int    `json:"position"`
 	Error      bool   `json:"error"`
 	NumSubPods int    `json:"numsubpods"`
-	Sounds     Sounds `json:"sounds"`
+
+	//Marks the pod that displays the closest thing to a simple "answer" that Wolfram|Alpha can provide
+	Primary bool `json:"primary,omitempty"`
+
+	//The subpod elements of the pod
+	SubPods []SubPod `json:"subpods"`
+
+	//sub elements of the pod
+	States []State `json:"states"`
 }
 
 // If there was a sound related to the query, if you for example query a musical note
@@ -212,12 +203,7 @@ type Link struct {
 	Title string `json:"title"`
 }
 
-// Each Source contains a link to a web page with the source information
-type Sources struct {
-	Count  int      `json:"count"`
-	Source []Source `json:"source"`
-}
-
+// Source contains a link to a web page with the source information
 type Source struct {
 	URL  string `json:"url"`
 	Text string `json:"text"`
@@ -228,27 +214,33 @@ type Source struct {
 // Moon", CDT", "GMT", and "Show metric". Clicking any of these buttons will recompute just that one pod to display
 // different information."
 type State struct {
-	Name  string `json:"name"`
-	Input string `json:"input"`
+	Name        string `json:"name"`
+	Input       string `json:"input"`
+	StepByStep  bool   `json:"stepbystep"`
+	ButtonStyle string `json:"buttonstyle"`
 }
 
 type SubPod struct {
+	//Usually an empty string because most subpod elements don't have a title
+	Title string `json:"title"`
+
 	//HTML <img> element
-	Image Img `json:"img"`
+	Img Img `json:"img"`
 
 	//Textual representation of the subpod
 	Plaintext string `json:"plaintext"`
-
-	//Usually an empty string because most subpod elements don't have a title
-	Title string `json:"title"`
 }
 
 type Img struct {
-	Src    string `json:"src"`
-	Alt    string `json:"alt"`
-	Title  string `json:"title"`
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
+	Src             string `json:"src"`
+	Alt             string `json:"alt"`
+	Title           string `json:"title"`
+	Width           int    `json:"width"`
+	Height          int    `json:"height"`
+	Type            string `json:"type"`
+	Themes          string `json:"themes"`
+	ColorInvertable bool   `json:"colorinvertable"`
+	ContentType     string `json:"contenttype"`
 }
 
 // GetQueryResult gets the query result from the API and returns it.
@@ -266,7 +258,6 @@ func (c *Client) GetQueryResult(query string, params url.Values) (*Json, error) 
 	}
 
 	data := &Json{}
-	data.QueryResult.Query = query
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
