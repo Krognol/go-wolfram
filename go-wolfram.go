@@ -10,17 +10,21 @@ import (
 	"strconv"
 )
 
-//The client, requires an App ID, which you can sign up for at https://developer.wolframalpha.com/
+// The client, requires an App ID, which you can sign up for at https://developer.wolframalpha.com/
 type Client struct {
 	AppID string
 }
 
-//The QueryResult is what you get back after a request
+type Json struct {
+	QueryResult QueryResult `json:"queryresult"`
+}
+
+// The QueryResult is what you get back after a request
 type QueryResult struct {
 	Query string
 
 	//The pods are what hold the majority of the information
-	Pods []Pod `json:"pod"`
+	Pods []Pod `json:"pods"`
 
 	//Warnings hold information about for example spelling errors
 	Warnings Warnings `json:"warnings"`
@@ -36,12 +40,12 @@ type QueryResult struct {
 
 	//true or false depending on whether the input could be successfully
 	//understood. If false there will be no <pod> subelements
-	Success string `json:"success"`
+	Success bool `json:"success"`
 
 	//true or false depending on whether a serious processing error occurred,
 	//such as a missing required parameter. If true there will be no pod
 	//content, just an <error> sub-element.
-	Error string `json:"error"`
+	Error bool `json:"error"`
 
 	//The number of pod elements
 	NumPods int `json:"numpods"`
@@ -61,7 +65,7 @@ type QueryResult struct {
 
 	//Whether the parsing stage timed out (try a longer parsetimeout parameter
 	//if true)
-	ParseTimedOut string `json:"parsetimedout"`
+	ParseTimedOut bool `json:"parsetimedout"`
 
 	//A URL to use to recalculate the query and get more pods.
 	ReCalculate string `json:"recalculate"`
@@ -69,7 +73,7 @@ type QueryResult struct {
 	//These elements are not documented currently
 	ID      string `json:"id"`
 	Host    string `json:"host"`
-	Server  int    `json:"server"`
+	Server  string `json:"server"`
 	Related string `json:"related"`
 
 	//The version specification of the API on the server that produced this result.
@@ -142,7 +146,7 @@ type Assumption struct {
 	Count    int     `json:"count"`
 }
 
-//Usually contains info about an assumption
+// Usually contains info about an assumption
 type Value struct {
 	Name        string `json:"name"`
 	Word        string `json:"word"`
@@ -150,14 +154,14 @@ type Value struct {
 	Input       string `json:"input"`
 }
 
-//<pod> elements are subelements of <queryresult>. Each contains the results for a single pod
+// <pod> elements are subelements of <queryresult>. Each contains the results for a single pod
 type Pod struct {
 	//The subpod elements of the pod
 	SubPods []SubPod `json:"subpod"`
 
 	//sub elements of the pod
-	Infos  Infos  `json:"infos"`
-	States States `json:"states"`
+	Infos  Infos   `json:"infos"`
+	States []State `json:"states"`
 
 	//The pod title, used to identify the pod.
 	Title string `json:"title"`
@@ -167,18 +171,18 @@ type Pod struct {
 	Scanner string `json:"scanner"`
 
 	//Marks the pod that displays the closest thing to a simple "answer" that Wolfram|Alpha can provide
-	Primary    bool   `json:"primary,omitempty"`
+	Primary bool `json:"primary,omitempty"`
 
 	//Not documented currently
 	ID         string `json:"id"`
 	Position   int    `json:"position"`
-	Error      string `json:"error"`
+	Error      bool   `json:"error"`
 	NumSubPods int    `json:"numsubpods"`
 	Sounds     Sounds `json:"sounds"`
 }
 
-//If there was a sound related to the query, if you for example query a musical note
-//You will get a <sound> element which contains a link to the sound
+// If there was a sound related to the query, if you for example query a musical note
+// You will get a <sound> element which contains a link to the sound
 type Sounds struct {
 	Count int     `json:"count"`
 	Sound []Sound `json:"sound"`
@@ -189,8 +193,8 @@ type Sound struct {
 	Type string `json:"type"`
 }
 
-//If there's extra information for the pod, the pod will have a <infos> element
-//which contains <info> elements with text, and/or images/links to that information
+// If there's extra information for the pod, the pod will have a <infos> element
+// which contains <info> elements with text, and/or images/links to that information
 type Infos struct {
 	Count int    `json:"count"`
 	Info  []Info `json:"info"`
@@ -208,7 +212,7 @@ type Link struct {
 	Title string `json:"title"`
 }
 
-//Each Source contains a link to a web page with the source information
+// Each Source contains a link to a web page with the source information
 type Sources struct {
 	Count  int      `json:"count"`
 	Source []Source `json:"source"`
@@ -219,15 +223,10 @@ type Source struct {
 	Text string `json:"text"`
 }
 
-//"Many pods on the Wolfram|Alpha website have text buttons in their upper-right corners that substitute the
-//contents of that pod with a modified version. In Figure 1, the Result pod has buttons titled "More days", "Sun and
-//Moon", CDT", "GMT", and "Show metric". Clicking any of these buttons will recompute just that one pod to display
-//different information."
-type States struct {
-	Count int     `json:"count"`
-	State []State `json:"state"`
-}
-
+// "Many pods on the Wolfram|Alpha website have text buttons in their upper-right corners that substitute the
+// contents of that pod with a modified version. In Figure 1, the Result pod has buttons titled "More days", "Sun and
+// Moon", CDT", "GMT", and "Show metric". Clicking any of these buttons will recompute just that one pod to display
+// different information."
 type State struct {
 	Name  string `json:"name"`
 	Input string `json:"input"`
@@ -258,7 +257,7 @@ type Img struct {
 // u.Add("format", "image")
 // Additional information about parameters can be found at
 // http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf, page 42
-func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, error) {
+func (c *Client) GetQueryResult(query string, params url.Values) (*Json, error) {
 	query = url.QueryEscape(query)
 
 	url := fmt.Sprintf("https://api.wolframalpha.com/v2/query?input=%s&appid=%s&output=JSON", query, c.AppID)
@@ -266,8 +265,8 @@ func (c *Client) GetQueryResult(query string, params url.Values) (*QueryResult, 
 		url += "&" + params.Encode()
 	}
 
-	data := &QueryResult{}
-	data.Query = query
+	data := &Json{}
+	data.QueryResult.Query = query
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -286,7 +285,7 @@ func unmarshal(body *http.Response, target interface{}) error {
 
 // GetSimpleQuery gets an image from the `simple` endpoint.
 //
-// Returns the image as a response body, the query url, and an error
+// # Returns the image as a response body, the query url, and an error
 //
 // Can take some extra parameters, e.g `background=F5F5F5`
 // sets the background color to #F5F5F5

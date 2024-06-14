@@ -3,11 +3,13 @@ package tests
 import (
 	"testing"
 
-	"github.com/Krognol/go-wolfram/wolfram"
+	"github.com/Krognol/go-wolfram"
 )
 
+const APP_ID = "some appid"
+
 func TestGetQueryResult(t *testing.T) {
-	c := &wolfram.Client{AppID: "some appid"}
+	c := &wolfram.Client{AppID: APP_ID}
 
 	_, err := c.GetQueryResult("What is the price of gold?", nil)
 	if err != nil {
@@ -17,7 +19,7 @@ func TestGetQueryResult(t *testing.T) {
 }
 
 func TestGetSimpleQueryResult(t *testing.T) {
-	c := &wolfram.Client{AppID: "some appid"}
+	c := &wolfram.Client{AppID: APP_ID}
 
 	_, _, err := c.GetSimpleQuery("What is the price of gold?", nil)
 	if err != nil {
@@ -27,7 +29,7 @@ func TestGetSimpleQueryResult(t *testing.T) {
 }
 
 func TestGetFastQueryRecognizerResult(t *testing.T) {
-	c := &wolfram.Client{AppID: "some appid"}
+	c := &wolfram.Client{AppID: APP_ID}
 
 	_, err := c.GetFastQueryRecognizer("Gold price", wolfram.Default)
 	if err != nil {
@@ -37,7 +39,7 @@ func TestGetFastQueryRecognizerResult(t *testing.T) {
 }
 
 func TestGetShortAnswerQueryResult(t *testing.T) {
-	c := &wolfram.Client{AppID: "some appid"}
+	c := &wolfram.Client{AppID: APP_ID}
 
 	_, err := c.GetShortAnswerQuery("Price of gold", wolfram.Metric, 0)
 	if err != nil {
@@ -47,7 +49,7 @@ func TestGetShortAnswerQueryResult(t *testing.T) {
 }
 
 func TestGetSpokenAnswerResult(t *testing.T) {
-	c := &wolfram.Client{AppID: "some appid"}
+	c := &wolfram.Client{AppID: APP_ID}
 
 	_, err := c.GetSpokentAnswerQuery("Price of gold", wolfram.Metric, 0)
 	if err != nil {
