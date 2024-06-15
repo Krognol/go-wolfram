@@ -70,7 +70,9 @@ type QueryResult struct {
 	Pods []Pod `json:"pods"`
 
 	//Each Source contains a link to a web page with the source information
-	Sources Source `json:"sources"`
+	// EDIT: it's variable. Can be an array or an object alone. Then this fails sometimes and sometimes not. So I
+	// disabled it.
+	//Sources []Source `json:"sources"`
 }
 
 type Generalization struct {
