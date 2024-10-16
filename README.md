@@ -2,13 +2,13 @@
 Single file library for the Wolfram Alpha API written in Golang without extra dependencies
 
 # Installing
-`go get github.com/Krognol/go-wolfram`
+`go get github.com/Edw590/go-wolfram`
 
 # Example
 ```go
 package main
 
-import "github.com/Krognol/go-wolfram"
+import "github.com/Edw590/go-wolfram"
 
 func main() {
 	//Initialize a new client
